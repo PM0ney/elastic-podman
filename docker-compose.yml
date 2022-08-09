@@ -1,0 +1,132 @@
+version: "3.0"
+
+services:
+  node1:
+    container_name: node1
+    restart: always
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    networks:
+      - es-net
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ES_JAVA_OPTS=${JAVA_OPTS}
+    volumes: 
+      - './certificates/certs:/usr/share/elasticsearch/config/certificates:z'
+      - './snapshots:/var/tmp/snapshots:z'
+      - './logs:/usr/share/elasticsearch/logs:z'
+      - ./elasticsearch/elasticsearch1.yml:/usr/share/elasticsearch/config/elasticsearch.yml:z
+      - ./node1data:/usr/share/elasticsearch/data:z
+    ports:
+      - 9200:9200
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    deploy:
+      resources:
+        limits:
+          memory: ${MEM_LIMIT}
+    healthcheck:
+      interval: 20s
+      retries: 10
+      test: curl -s -k -u elastic:${ELASTIC_PASSWORD} https://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+
+  node2:
+    container_name: node2
+    restart: always
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    networks:
+      - es-net
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ES_JAVA_OPTS=${JAVA_OPTS}
+    depends_on:
+      - node1
+    volumes: 
+      - './certificates/certs:/usr/share/elasticsearch/config/certificates:z'
+      - './snapshots:/var/tmp/snapshots:z'
+      - ./elasticsearch/elasticsearch2.yml:/usr/share/elasticsearch/config/elasticsearch.yml:z
+      - ./node2data:/usr/share/elasticsearch/data:z
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    deploy:
+      resources:
+        limits:
+          memory: ${MEM_LIMIT}
+    healthcheck:
+      interval: 20s
+      retries: 10
+      test: curl -s -k -u elastic:${ELASTIC_PASSWORD} https://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+
+  node3:
+    container_name: node3
+    restart: always
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    networks:
+      - es-net
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ES_JAVA_OPTS=${JAVA_OPTS}
+    depends_on:
+      - node2
+    volumes: 
+      - './certificates/certs:/usr/share/elasticsearch/config/certificates'
+      - './snapshots:/var/tmp/snapshots:z'
+      - ./elasticsearch/elasticsearch3.yml:/usr/share/elasticsearch/config/elasticsearch.yml:z
+      - ./node3data:/usr/share/elasticsearch/data:z
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    deploy:
+      resources:
+        limits:
+          memory: ${MEM_LIMIT}
+    healthcheck:
+      interval: 20s
+      retries: 10
+      test: curl -s -k -u elastic:${ELASTIC_PASSWORD} https://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+
+  kibana:
+    container_name: kibana
+    restart: always
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    environment:
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+    volumes:
+      - ./kibana/kibana1.yml:/usr/share/kibana/config/kibana.yml:z
+      - ./certificates/certs:/usr/share/kibana/config/certificates:z
+    networks:
+      - es-net
+    depends_on:
+      node1:
+        condition: service_healthy
+      node2:
+        condition: service_healthy
+      node3:
+        condition: service_healthy
+    ports:
+      - 5601:5601
+  
+networks:
+  es-net:
+    driver: bridge
+
+volumes:
+  certs:
+  snapshots:
+  node1data:
+  node2data:
+  node3data:

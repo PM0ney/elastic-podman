@@ -1,0 +1,8 @@
+elasticsearch:
+  hosts: https://node1:9200
+  username: kibana_system
+  ssl.certificateAuthorities: /usr/share/kibana/config/certificates/ca/ca.crt
+
+server.publicBaseUrl: http://10.8.10.40:5601
+server.host: 0.0.0.0
+
