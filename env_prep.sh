@@ -19,6 +19,7 @@ sudo systemctl start podman
 sudo systemctl start podman.socket
 
 #Install dnsname plugin for podman container name resolution
+cd ~
 git clone https://github.com/containers/dnsname
 cd dnsname/
 make PREFIX=/usr
