@@ -19,3 +19,9 @@ instances:
       - localhost
     ip:
       - 10.8.10.40
+  - name: fleet
+    dns:
+      - fleet
+      - localhost
+    ip:
+      - 10.8.10.40
