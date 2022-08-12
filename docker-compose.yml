@@ -105,6 +105,11 @@ services:
     environment:
       - SERVERNAME=kibana
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - SERVER_SSL_ENABLED=true
+      - SERVER_SSL_KEY=/usr/share/kibana/config/certificates/kibana/kibana.key
+      - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certificates/kibana/kibana.crt
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=/usr/share/kibana/config/certificates/ca/ca.crt
     volumes:
       - ./kibana/kibana1.yml:/usr/share/kibana/config/kibana.yml:z
       - ./certificates/certs:/usr/share/kibana/config/certificates:z
@@ -134,10 +139,11 @@ services:
       - FLEET_SERVER_CERT=/usr/share/elastic-agent/config/certificates/fleet/fleet.crt
       - FLEET_SERVER_CERT_KEY=/usr/share/elastic-agent/config/certificates/fleet/fleet.key
       - CERTIFICATE_AUTHORITIES=/usr/share/elasticsearch/config/certificates/ca/ca.crt
-      - FLEET_SERVER_SERVICE_TOKEN=AAEAAWVsYXN0aWMvZmxlZXQtc2VydmVyL3Rva2VuLTE2NjAxNjYzMjc0MTE6bHBZSGlidTlTYVdXbnAwM2xCcmFQZw
+      - FLEET_SERVER_SERVICE_TOKEN=AAEAAWVsYXN0aWMvZmxlZXQtc2VydmVyL3Rva2VuLTE2NjAyNjk3MzIxMzA6RzlGXy1YU1FSOXk1dTgtQXplemQ3dw
       - FLEET_SERVER_POLICY_ID=fleet-server-policy
     volumes:
       - ./certificates/certs:/usr/share/elastic-agent/config/certificates:z
+      - ./fleetdata:/usr/share/elastic-agent/state:z
     ports:
       - 8220:8220
     networks:
@@ -152,3 +158,4 @@ volumes:
   node1data:
   node2data:
   node3data:
+  fleetdata:

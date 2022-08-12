@@ -28,4 +28,7 @@ sudo make install PREFIX=/usr
 # Open ports for Kibana and Elasticsearch in firewall
 sudo firewall-cmd --add-port=5601/tcp --perma
 sudo firewall-cmd --add-port=9200/tcp --perma
+sudo firewall-cmd --add-port=8220/tcp --perma
 sudo firewall-cmd --reload
+
+
